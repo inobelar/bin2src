@@ -10,7 +10,7 @@
     - Example (convert itself to bytes, produces `resource_bin2src.h` and `resource_bin2src.c`):
         - `$ ./bin2src -i ./bin2src -o resource_bin2src -n bin2src -m c_funcs`
 
-## Depencies
+## Dependencies
 
 - [GitHub :: jibsen/parg](https://github.com/jibsen/parg) - library for portable arguments parsing in C.
 
