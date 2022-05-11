@@ -23,7 +23,7 @@ gcc \
     -O3 \
     \
     -Wall -Wextra -Werror \
-    -ansi -pedantic \
+    -std=c89 -ansi -pedantic -pedantic-errors \
     \
     -I ./third_party/parg/ \
     \

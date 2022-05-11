@@ -1,8 +1,16 @@
 #include <stdlib.h> /* EXIT_SUCCESS, EXIT_FAILURE */
-#include <stdio.h>  /* fprintf() */
-#include <string.h> /* strlen() */
+#include <stdio.h>  /* fprintf(), fopen(), fclose() */
+#include <string.h> /* strlen(), strcmp(), strcat(), etc */
 
 #include <parg.h>   /* parg library */
+
+/*
+    Portability notes:
+      - In 'fprintf()' instead of '%zu' (for 'size_t' type) used '%lu' with
+        '(unsigned long)' cast - since '%zu' was added in 'C99', but for
+        portability we also supports 'C89', which dont know about '%zu'.
+        - Reference: https://stackoverflow.com/a/2930710/
+*/
 
 /* -------------------------------------------------------------------------- */
 
@@ -94,7 +102,7 @@ int read_file(const char* filename, char** out_bytes, size_t* out_file_size)
     buffer = (char*) malloc(file_size);
     if(buffer == NULL)
     {
-        fprintf(stderr, "Error: cannot alocate memory (%lu bytes) to store file\'s %s content\n", file_size, filename);
+        fprintf(stderr, "Error: cannot alocate memory (%lu bytes) to store file\'s %s content\n", (unsigned long)file_size, filename);
 
         fclose(f_input);
         return 1;
@@ -103,7 +111,7 @@ int read_file(const char* filename, char** out_bytes, size_t* out_file_size)
     num_bytes_read = fread(buffer, 1, file_size, f_input);
     if(num_bytes_read != file_size)
     {
-        fprintf(stderr, "Error: cannot read the whole file %s. (read bytes: %lu != content bytes %lu)\n", filename, num_bytes_read, file_size);
+        fprintf(stderr, "Error: cannot read the whole file %s. (read bytes: %lu != content bytes %lu)\n", filename, (unsigned long)num_bytes_read, (unsigned long)file_size);
 
         fclose(f_input);
         free(buffer);
@@ -196,7 +204,7 @@ int write_C_header_single(
             "#include <stddef.h> /* for size_t */\n"
             "\n"
             "static const char %s_bytes[%lu] = {",
-            var_name, bytes_count);
+            var_name, (unsigned long)bytes_count);
 
     write_bytes(header_file, bytes, bytes_count);
 
@@ -205,7 +213,7 @@ int write_C_header_single(
             "};\n"
             "\n"
             "static const size_t %s_size = %lu;\n",
-            var_name, bytes_count
+            var_name, (unsigned long)bytes_count
     );
 
     fclose(header_file);
@@ -292,7 +300,7 @@ int write_C_header_source_extern(
         fprintf(source_file, "#include \"%s\"\n", header_file_name);
         fprintf(source_file, "\n");
 
-        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, bytes_count);
+        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
         write_bytes(source_file, bytes, bytes_count);
         fprintf(source_file,
                 "\n"
@@ -301,7 +309,7 @@ int write_C_header_source_extern(
 
         fprintf(source_file,
                 "static const size_t %s_size = %lu;\n",
-                var_name, bytes_count);
+                var_name, (unsigned long)bytes_count);
 
         fclose(source_file);
     }
@@ -393,7 +401,7 @@ int write_C_header_source_funcs(
                 "#include \"%s\"\n"
                 "\n", header_file_name);
 
-        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, bytes_count);
+        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
         write_bytes(source_file, bytes, bytes_count);
         fprintf(source_file,
                 "\n"
@@ -402,7 +410,7 @@ int write_C_header_source_funcs(
 
         fprintf(source_file,
                 "static const size_t %s_size = %lu;\n",
-                var_name, bytes_count);
+                var_name, (unsigned long)bytes_count);
 
         fprintf(source_file,
                 "\n"
@@ -489,6 +497,8 @@ void print_modes(FILE* output)
 
 /* -------------------------------------------------------------------------- */
 
+static const char APP_VERSION[] = "1.0.1";
+
 int main(int argc, char* argv[])
 {
     const char* app_name = (argc > 0) ? argv[0] : NULL;
@@ -523,8 +533,8 @@ int main(int argc, char* argv[])
             } break;
 
             case 'v': {
-                fprintf(stdout, "%s version 1.0\n", app_name);
-                fprintf(stdout, "  <parg> version %s\n", PARG_VER_STRING);
+                fprintf(stdout, "%s version: %s\n", app_name, APP_VERSION);
+                fprintf(stdout, "  <parg> version: %s\n", PARG_VER_STRING);
                 return EXIT_SUCCESS;
             } break;
 
