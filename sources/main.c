@@ -433,12 +433,235 @@ int write_C_header_source_funcs(
     return 0;
 }
 
+int write_C_header_source_struct_extern(
+        const char* file_name, const char* var_name,
+        const char* bytes, size_t bytes_count)
+{
+    char* header_file_name = NULL;
+    char* source_file_name = NULL;
+
+    FILE* header_file = NULL;
+    FILE* source_file = NULL;
+
+    /* ---------------------------------------------------------------------- */
+
+    header_file_name = str_concat(file_name, ".h");
+    if(header_file_name == NULL)
+    {
+        return 1;
+    }
+
+    source_file_name = str_concat(file_name, ".c");
+    if(source_file_name == NULL)
+    {
+        free(header_file_name);
+        return 1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    {
+        header_file = fopen(header_file_name, "w");
+        if(header_file == NULL)
+        {
+            fprintf(stderr, "Error: can\'t open the file %s", header_file_name);
+
+            free(header_file_name);
+            free(source_file_name);
+            return 1;
+        }
+
+        fprintf(header_file,
+                "#pragma once\n"
+                "\n"
+                "#include <stddef.h> /* for size_t */\n"
+                "\n"
+                "#ifdef __cplusplus\n"
+                "extern \"C\" {\n"
+                "#endif\n"
+                "\n");
+
+        fprintf(header_file,
+                "typedef struct %s_data\n"
+                "{\n"
+                "    const char* bytes;\n"
+                "    size_t      size;\n"
+                "} %s_data;\n"
+                "\n"
+                "extern const %s_data %s;\n",
+                var_name, var_name, var_name, var_name);
+
+        fprintf(header_file,
+                "\n"
+                "#ifdef __cplusplus\n"
+                "} /* extern \"C\" */\n"
+                "#endif\n");
+
+        fclose(header_file);
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    {
+        source_file = fopen(source_file_name, "w");
+        if(source_file == NULL)
+        {
+            fprintf(stderr, "Error: can\'t open the file %s", source_file_name);
+
+            free(header_file_name);
+            free(source_file_name);
+            return 1;
+        }
+
+        fprintf(source_file,
+                "#include \"%s\"\n"
+                "\n", header_file_name);
+
+        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
+        write_bytes(source_file, bytes, bytes_count);
+        fprintf(source_file,
+                "\n"
+                "};\n");
+
+        fprintf(source_file,
+                "\n"
+                "/* ------------------------------------------------------ */\n"
+                "\n"
+                "static const %s_data %s = {%s_bytes, %lu};\n",
+                var_name, var_name, var_name, (unsigned long)bytes_count);
+
+        fclose(source_file);
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    free(header_file_name);
+    free(source_file_name);
+
+    return 0;
+}
+
+int write_C_header_source_struct_func(
+        const char* file_name, const char* var_name,
+        const char* bytes, size_t bytes_count)
+{
+    char* header_file_name = NULL;
+    char* source_file_name = NULL;
+
+    FILE* header_file = NULL;
+    FILE* source_file = NULL;
+
+    /* ---------------------------------------------------------------------- */
+
+    header_file_name = str_concat(file_name, ".h");
+    if(header_file_name == NULL)
+    {
+        return 1;
+    }
+
+    source_file_name = str_concat(file_name, ".c");
+    if(source_file_name == NULL)
+    {
+        free(header_file_name);
+        return 1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    {
+        header_file = fopen(header_file_name, "w");
+        if(header_file == NULL)
+        {
+            fprintf(stderr, "Error: can\'t open the file %s", header_file_name);
+
+            free(header_file_name);
+            free(source_file_name);
+            return 1;
+        }
+
+        fprintf(header_file,
+                "#pragma once\n"
+                "\n"
+                "#include <stddef.h> /* for size_t */\n"
+                "\n"
+                "#ifdef __cplusplus\n"
+                "extern \"C\" {\n"
+                "#endif\n"
+                "\n");
+
+        fprintf(header_file,
+                "typedef struct %s_data\n"
+                "{\n"
+                "    const char* bytes;\n"
+                "    size_t      size;\n"
+                "} %s_data;\n"
+                "\n"
+                "const %s_data* get_%s_data();\n",
+                var_name, var_name, var_name, var_name);
+
+        fprintf(header_file,
+                "\n"
+                "#ifdef __cplusplus\n"
+                "} /* extern \"C\" */\n"
+                "#endif\n");
+
+        fclose(header_file);
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    {
+        source_file = fopen(source_file_name, "w");
+        if(source_file == NULL)
+        {
+            fprintf(stderr, "Error: can\'t open the file %s", source_file_name);
+
+            free(header_file_name);
+            free(source_file_name);
+            return 1;
+        }
+
+        fprintf(source_file,
+                "#include \"%s\"\n"
+                "\n", header_file_name);
+
+        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
+        write_bytes(source_file, bytes, bytes_count);
+        fprintf(source_file,
+                "\n"
+                "};\n");
+
+        fprintf(source_file,
+                "\n"
+                "/* ------------------------------------------------------ */\n"
+                "\n"
+                "static const %s_data %s_data_struct = {%s_bytes, %lu};\n"
+                "\n",
+                var_name, var_name, var_name, (unsigned long) bytes_count);
+
+        fprintf(source_file,
+                "const %s_data* get_%s_data() { return &%s_data_struct; }\n",
+                var_name, var_name, var_name);
+
+        fclose(source_file);
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    free(header_file_name);
+    free(source_file_name);
+
+    return 0;
+}
+
 /* -------------------------------------------------------------------------- */
 
 typedef enum {
-    MODE_C_HEADER_SINGLE = 0,
-    MODE_C_HEADER_SOURCE_EXTERN,
-    MODE_C_HEADER_SOURCE_FUNCS
+      MODE_C_HEADER_SINGLE = 0
+    , MODE_C_HEADER_SOURCE_EXTERN
+    , MODE_C_HEADER_SOURCE_FUNCS
+    , MODE_C_HEADER_SOURCE_STRUCT_EXTERN
+    , MODE_C_HEADER_SOURCE_STRUCT_FUNC
 } Mode;
 
 typedef struct {
@@ -446,12 +669,17 @@ typedef struct {
     const char* mode_name;
 } ModeInfo;
 
-#define MODES_COUNT 3
+#define MODES_COUNT 5
 
-static const ModeInfo MODES[MODES_COUNT] = {
+static const ModeInfo MODES[MODES_COUNT] =
+{
       { MODE_C_HEADER_SINGLE,        "c_header" }
+
     , { MODE_C_HEADER_SOURCE_EXTERN, "c_extern" }
     , { MODE_C_HEADER_SOURCE_FUNCS,  "c_funcs"  }
+
+    , { MODE_C_HEADER_SOURCE_STRUCT_EXTERN, "c_struct_extern" }
+    , { MODE_C_HEADER_SOURCE_STRUCT_FUNC,   "c_struct_func"   }
 };
 
 /* Returns -1 in case of missmatch */
@@ -642,6 +870,14 @@ int main(int argc, char* argv[])
 
         case MODE_C_HEADER_SOURCE_FUNCS: {
             result = write_C_header_source_funcs(output_file_name, var_name, input_file_buffer, input_file_size);
+        } break;
+
+        case MODE_C_HEADER_SOURCE_STRUCT_EXTERN: {
+            result = write_C_header_source_struct_extern(output_file_name, var_name, input_file_buffer, input_file_size);
+        } break;
+
+        case MODE_C_HEADER_SOURCE_STRUCT_FUNC: {
+            result = write_C_header_source_struct_func(output_file_name, var_name, input_file_buffer, input_file_size);
         } break;
 
         default: { /* Unreachable: mode validated previously */ } break;
