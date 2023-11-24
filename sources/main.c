@@ -203,7 +203,7 @@ int write_C_header_single(
             "\n"
             "#include <stddef.h> /* for size_t */\n"
             "\n"
-            "static const char %s_bytes[%lu] = {",
+            "static const unsigned char %s_bytes[%lu] = {",
             var_name, (unsigned long)bytes_count);
 
     write_bytes(header_file, bytes, bytes_count);
@@ -271,8 +271,8 @@ int write_C_header_source_extern(
                 "\n");
 
         fprintf(header_file,
-                "extern const char* %s_bytes;\n"
-                "extern size_t      %s_size;\n",
+                "extern const unsigned char* %s_bytes;\n"
+                "extern size_t               %s_size;\n",
                 var_name, var_name);
 
         fprintf(header_file,
@@ -300,7 +300,7 @@ int write_C_header_source_extern(
         fprintf(source_file, "#include \"%s\"\n", header_file_name);
         fprintf(source_file, "\n");
 
-        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
+        fprintf(source_file, "static const unsigned char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
         write_bytes(source_file, bytes, bytes_count);
         fprintf(source_file,
                 "\n"
@@ -371,8 +371,8 @@ int write_C_header_source_funcs(
                 "\n");
 
         fprintf(header_file,
-                "const char* get_%s_bytes();\n"
-                "size_t      get_%s_size();\n",
+                "const unsigned char* get_%s_bytes();\n"
+                "size_t               get_%s_size();\n",
                 var_name, var_name);
 
         fprintf(header_file,
@@ -401,7 +401,7 @@ int write_C_header_source_funcs(
                 "#include \"%s\"\n"
                 "\n", header_file_name);
 
-        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
+        fprintf(source_file, "static const unsigned char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
         write_bytes(source_file, bytes, bytes_count);
         fprintf(source_file,
                 "\n"
@@ -416,10 +416,10 @@ int write_C_header_source_funcs(
                 "\n"
                 "/* ------------------------------------------------------ */\n"
                 "\n"
-                "const char* get_%s_bytes() { return %s_bytes; }\n",
+                "const unsigned char* get_%s_bytes() { return %s_bytes; }\n",
                 var_name, var_name);
         fprintf(source_file,
-                "size_t      get_%s_size()  { return %s_size; }\n",
+                "size_t               get_%s_size()  { return %s_size; }\n",
                 var_name, var_name);
 
         fclose(source_file);
@@ -484,8 +484,8 @@ int write_C_header_source_struct_extern(
         fprintf(header_file,
                 "typedef struct %s_data\n"
                 "{\n"
-                "    const char* bytes;\n"
-                "    size_t      size;\n"
+                "    const unsigned char* bytes;\n"
+                "    size_t               size;\n"
                 "} %s_data;\n"
                 "\n"
                 "extern const %s_data %s;\n",
@@ -517,7 +517,7 @@ int write_C_header_source_struct_extern(
                 "#include \"%s\"\n"
                 "\n", header_file_name);
 
-        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
+        fprintf(source_file, "static const unsigned char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
         write_bytes(source_file, bytes, bytes_count);
         fprintf(source_file,
                 "\n"
@@ -592,8 +592,8 @@ int write_C_header_source_struct_func(
         fprintf(header_file,
                 "typedef struct %s_data\n"
                 "{\n"
-                "    const char* bytes;\n"
-                "    size_t      size;\n"
+                "    const unsigned char* bytes;\n"
+                "    size_t               size;\n"
                 "} %s_data;\n"
                 "\n"
                 "const %s_data* get_%s_data();\n",
@@ -625,7 +625,7 @@ int write_C_header_source_struct_func(
                 "#include \"%s\"\n"
                 "\n", header_file_name);
 
-        fprintf(source_file, "static const char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
+        fprintf(source_file, "static const unsigned char %s_bytes[%lu] = {", var_name, (unsigned long)bytes_count);
         write_bytes(source_file, bytes, bytes_count);
         fprintf(source_file,
                 "\n"
@@ -725,7 +725,7 @@ void print_modes(FILE* output)
 
 /* -------------------------------------------------------------------------- */
 
-static const char APP_VERSION[] = "1.0.1";
+static const char APP_VERSION[] = "1.0.2";
 
 int main(int argc, char* argv[])
 {
@@ -755,12 +755,12 @@ int main(int argc, char* argv[])
         {
             switch (opt) {
 
-            case 'h': {
+            case 'h': { /* Help */
                 fprintf(stdout, "Usage: %s -i INPUT_FILE_NAME -o OUTPUT_FILE_NAME -n VARIABLE_NAME [-m MODE]\n", app_name);
                 return EXIT_SUCCESS;
             } break;
 
-            case 'v': {
+            case 'v': { /* Version */
                 fprintf(stdout, "%s version: %s\n", app_name, APP_VERSION);
                 fprintf(stdout, "  <parg> version: %s\n", PARG_VER_STRING);
                 return EXIT_SUCCESS;
